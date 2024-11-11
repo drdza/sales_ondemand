@@ -1,6 +1,4 @@
-streamlit==1.25.0      # Última versión estable de Streamlit
-pandas==2.0.3          # Manipulación de datos
-sqlalchemy==2.1.0      # Conexión a la base de datos PostgreSQL
-psycopg2-binary==2.9.7 # Conector para PostgreSQL
-matplotlib==3.8.0      # Visualización de gráficos
-seaborn==0.12.2        # Gráficos de datos estadísticos
+streamlit
+pandas
+openpyxl  # Necesario para leer archivos Excel
+numpy
