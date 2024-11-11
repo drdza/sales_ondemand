@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+import unidecode  # para remover acentos de los nombres de columnas
 from io import StringIO
 
 # Configuración inicial de la aplicación
@@ -9,14 +10,18 @@ st.write("Sube tus datos en Excel y realiza una validación previa antes de la c
 
 # Paso 1: Seleccionar el tipo de plantilla de datos
 plantillas = {
-    "Ventas": ["Fecha", "Producto", "Cantidad", "Precio"],
-    "Inventario": ["ID", "Producto", "Stock", "Ubicación"],
-    "Clientes": ["ClienteID", "Nombre", "Email", "Teléfono"]
+    "Ventas": ["fecha", "producto", "cantidad", "precio"],
+    "Inventario": ["id", "producto", "stock", "ubicacion"],
+    "Clientes": ["clienteid", "nombre", "email", "telefono"]
 }
 
 # Selección de plantilla
 tipo_dato = st.selectbox("Selecciona el tipo de información que deseas cargar:", list(plantillas.keys()))
 campos_esperados = plantillas[tipo_dato]
+
+# Función para normalizar nombres de columnas
+def normalizar_nombre_columna(nombre):
+    return unidecode.unidecode(nombre.strip().lower())
 
 # Subir archivo de datos
 uploaded_file = st.file_uploader("Sube tu archivo Excel", type="xlsx")
@@ -24,6 +29,10 @@ uploaded_file = st.file_uploader("Sube tu archivo Excel", type="xlsx")
 if uploaded_file:
     # Cargar el archivo en un DataFrame
     datos_usuario = pd.read_excel(uploaded_file)
+    
+    # Normalizar nombres de columnas del archivo del usuario
+    datos_usuario.columns = [normalizar_nombre_columna(col) for col in datos_usuario.columns]
+    
     st.write("Vista previa de los datos cargados:")
     st.write(datos_usuario.head())
 
@@ -39,15 +48,15 @@ if uploaded_file:
         
         # Ejemplo de limpieza de datos según tipo de plantilla
         if tipo_dato == "Ventas":
-            datos_limpios["Fecha"] = pd.to_datetime(datos_limpios["Fecha"], errors="coerce")
-            datos_limpios["Cantidad"] = pd.to_numeric(datos_limpios["Cantidad"], errors="coerce").fillna(0)
-            datos_limpios["Precio"] = pd.to_numeric(datos_limpios["Precio"], errors="coerce").fillna(0)
+            datos_limpios["fecha"] = pd.to_datetime(datos_limpios["fecha"], errors="coerce")
+            datos_limpios["cantidad"] = pd.to_numeric(datos_limpios["cantidad"], errors="coerce").fillna(0)
+            datos_limpios["precio"] = pd.to_numeric(datos_limpios["precio"], errors="coerce").fillna(0)
         
         elif tipo_dato == "Inventario":
-            datos_limpios["Stock"] = pd.to_numeric(datos_limpios["Stock"], errors="coerce").fillna(0)
+            datos_limpios["stock"] = pd.to_numeric(datos_limpios["stock"], errors="coerce").fillna(0)
 
         elif tipo_dato == "Clientes":
-            datos_limpios["Email"] = datos_limpios["Email"].str.lower()
+            datos_limpios["email"] = datos_limpios["email"].str.lower()
         
         # Paso 4: Comparación de datos
         st.write("Comparativa de datos originales vs. datos limpiados")
